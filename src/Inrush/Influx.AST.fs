@@ -1,6 +1,4 @@
-namespace Inrush
-
-open Algebra.Boolean
+namespace Inrush.Influx.AST
 
 [<AutoOpen>]
 module Show =
