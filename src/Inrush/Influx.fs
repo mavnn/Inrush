@@ -1,4 +1,4 @@
-namespace Inrush.Influx.AST
+namespace Inrush.Influx
 
 [<AutoOpen>]
 module Show =
@@ -6,7 +6,7 @@ module Show =
         (^a : (member Show : unit -> string) x)
 
 /// Types used to represent the AST of a query
-module QueryTypes = 
+module AST = 
     type ColumnName =
         | ColumnName of string
         member x.Show() =
@@ -25,6 +25,7 @@ module QueryTypes =
         | Histogram of ColumnName * double option
         | Derivative of ColumnName
         | Sum of ColumnName
+        | As of Column * string
         member x.Show () =
             match x with
             | Name s -> sprintf "%s" <| s.Show()
@@ -42,6 +43,7 @@ module QueryTypes =
                 | None -> sprintf "HISTOGRAM(%s)" (c.Show())
             | Derivative c -> sprintf "DERIVATIVE(%s)" (c.Show())
             | Sum c -> sprintf "SUM(%s)" (c.Show())
+            | As (c, name) -> sprintf "%s AS %s" (c.Show()) name
 
     type ColumnSpec =
         | Star
@@ -95,11 +97,13 @@ module QueryTypes =
         | String of string
         | Number of float
         | Time of TimeValue
+        | Bool of bool
         member x.Show () =
             match x with
-            | String s -> sprintf "%A" s
+            | String s -> sprintf "'%s'" s
             | Number f -> sprintf "%f" f
             | Time t -> show t
+            | Bool b -> sprintf "%A" b
 
     type WhereClause =
         | Equal of ColumnName * WhereValue
@@ -125,9 +129,9 @@ module QueryTypes =
             | LessThan (c, w) ->
                 sprintf "%s < %s" (show c) (show w)
             | And (w, w') ->
-                sprintf "(%s and %s)" (show w) (show w')
+                sprintf "(%s AND %s)" (show w) (show w')
             | Or (w, w') ->
-                sprintf "(%s or %s)" (show w) (show w')
+                sprintf "(%s OR %s)" (show w) (show w')
 
     type GroupClause =
         | ColumnGroup of ColumnName
@@ -179,3 +183,96 @@ module QueryTypes =
             match x with
             | SelectStatement s ->
                 s.Show()
+
+module Action =
+    open Inrush.Meta
+    open AST
+    open System
+    open System.Reflection
+    open Microsoft.FSharp.Reflection
+    open Microsoft.FSharp.Quotations
+    open Microsoft.FSharp.Quotations.Patterns
+    open Microsoft.FSharp.Quotations.ExprShape
+    open Microsoft.FSharp.Quotations.DerivedPatterns
+    open Algebra.Boolean
+    open Algebra.Boolean.Simplifiers
+    
+    // No op, purely used to flag a quotation as an Influx query
+    let select<'a> () =
+        Seq.empty<'a>
+
+    let (|InfluxQuery|_|) quote =
+        match quote with
+        | SpecificCall <@@ Seq.filter @@> (_, _, [ShapeLambda(_, filter);SpecificCall <@@ select @@> (_, [returnType], _)]) ->
+            Some (returnType, Some filter)
+        | SpecificCall <@@ select @@> (_, [returnType], _) ->
+            Some (returnType, None)
+        | _ -> None
+
+    let (|ColName|_|) quote =
+        match quote with
+        | PropertyGet (Some (Var _), prop, _) ->
+            Some (ColumnName prop.Name)
+        | _ -> None
+
+    let (|WhereVal|_|) quote =
+        match quote with
+        | Value (o, t) when t = typeof<bool> ->
+            Some <| Bool (o :?> bool)
+        | Value (o, t) when t = typeof<string> ->
+            Some <| WhereValue.String (o :?> string)
+        | Value (o, t) when t = typeof<TimeValue> ->
+            Some <| Time(o :?> TimeValue)
+        | Value (o, t) when t = typeof<int> ->
+            Some <| Number(o :?> int |> float)
+        | Value (o, t) when t = typeof<float> ->
+            Some <| Number(o :?> float)
+        | Value (o, t) ->
+            Some <| WhereValue.String (o.ToString())
+        | _ ->
+            None
+
+    let rec buildWhere filter =
+        match filter with
+        | And' (p, p') ->
+            And (buildWhere p, buildWhere p') 
+        | Or' (p, p') ->
+            Or (buildWhere p, buildWhere p')
+        | SpecificCall <@@ (=) @@> (_, _, [ColName left;WhereVal right]) ->
+            Equal (left, right)
+        | SpecificCall <@@ (<>) @@> (_, _, [ColName left;WhereVal right]) ->
+            NotEqual (left, right)
+        | SpecificCall <@@ (<) @@> (_, _, [ColName left;WhereVal right]) ->
+            LessThan (left, right)
+        | SpecificCall <@@ (>) @@> (_, _, [ColName left;WhereVal right]) ->
+            Greater (left, right)
+        | _ ->
+            failwith "Not supported yet."
+
+    let getColumns (t : System.Type) =
+        t.GetProperties()
+        |> Seq.map (fun p -> Name(ColumnName(p.Name)))
+        |> List.ofSeq
+        |> Columns
+
+    let getSeries (t : System.Type) =
+        t.Name
+        |> SeriesSpec.Single
+
+    let buildAST returnType filter =
+        {
+            Columns = getColumns returnType
+            Series = getSeries returnType
+            Where = Option.map buildWhere filter
+            GroupBy = None
+        }
+
+    let create quote =
+        quote
+        |> unpipe
+        |> filterMerge (beta >> unbind >> complement >> idempotence)
+        |> function
+           | InfluxQuery (t, p) ->
+                buildAST t p |> Some
+           | _ -> None
+        |> Option.map show

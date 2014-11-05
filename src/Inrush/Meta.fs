@@ -40,8 +40,8 @@ let filterMerge reduce quote =
                 let mergedPred =
                     Expr.Lambda(var,
                         Expr.IfThenElse(Expr.Application(pred1, Expr.Var var),
-                                        Expr.Value true, 
-                                        Expr.Application(pred2, Expr.Var var)))
+                                        Expr.Application(pred2, Expr.Var var),
+                                        Expr.Value false))
                 Expr.Call(filter seqType, [mergedPred;sequence])
             | ShapeLambda (v, e) ->
                 Expr.Lambda (v, inner e)
@@ -55,3 +55,4 @@ let filterMerge reduce quote =
         else
             inner next
     inner quote
+

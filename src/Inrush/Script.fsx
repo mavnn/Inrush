@@ -1,12 +1,14 @@
 // Learn more about F# at http://fsharp.org. See the 'F# Tutorial' project
 // for more guidance on F# programming.
 #load "../../paket-files/mavnn/Algebra.Boolean/Algebra.Boolean/Transforms.fs"
-#load "Influx.AST.fs"
 #load "Meta.fs"
+#load "Influx.fs"
 
 open Algebra.Boolean.Simplifiers
-open Inrush.Influx.AST.QueryTypes
+open Inrush.Influx.AST
+open Inrush.Influx.Action
 open Inrush.Meta
+open Inrush.Influx
 
 //let select = 
 //    SelectStatement({ Columns = 
@@ -24,13 +26,10 @@ type MyQueryResult =
         bob : string
     }
 
-let get<'a> () =
-    Seq.empty<'a>
-
 let s =
     <@
         fun name value ->
-            get<MyQueryResult> ()
+            select<MyQueryResult> ()
             |> Seq.filter (fun x -> x.bob = name)
             |> Seq.filter (fun x -> x.value = value || x.bob = "fred")
     @>
@@ -40,7 +39,7 @@ let betad =
 
 let s' =
     <@@
-        get<MyQueryResult> ()
+        select<MyQueryResult> ()
         |> Seq.filter (fun x -> x.bob = "bob")
         |> Seq.filter (fun x -> x.value = 100 || x.bob = "fred")
         |> Seq.filter (fun x -> x.bob = "fred")
@@ -48,6 +47,21 @@ let s' =
 
 let one = unpipe s'
 
-let two =
-    unpipe s'
-    |> filterMerge id
+type Damage =
+    {
+        amount : int
+        location : string
+    }
+
+let q =
+    <@@
+        select<Damage> ()
+        |> Seq.filter (fun x -> x.location = "centre torso")
+        |> Seq.filter (fun x -> x.location <> "head")
+        |> Seq.filter (fun x -> x.amount > 11)
+    @@>
+    |> create
+
+//val q : string option =
+//  Some
+//    "SELECT amount, location FROM "Damage" WHERE ((amount > 11.000000 AND location <> 'head') AND location = 'centre torso')"
