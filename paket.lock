@@ -2,8 +2,6 @@ NUGET
   remote: https://nuget.org/api/v2
   specs:
     FAKE (3.8.5)
-    FsCheck (0.9.2.0)
-    FSharp.Charting (0.90.7)
     FSharp.Compiler.Service (0.0.67)
     FSharp.Formatting (2.4.36)
       FSharp.Compiler.Service (0.0.67)
@@ -16,9 +14,6 @@ NUGET
     Microsoft.Net.Http (2.2.28)
       Microsoft.Bcl (>= 1.1.9)
       Microsoft.Bcl.Build (>= 1.0.14)
-    Nancy (0.23.2)
-    Nancy.Hosting.Self (0.23.2)
-      Nancy (>= 0.23.2)
     NuGet.CommandLine (2.8.3)
     NUnit (2.6.3)
     NUnit.Runners (2.6.3)
@@ -27,7 +22,6 @@ NUGET
     RazorEngine (3.3.0)
       Microsoft.AspNet.Razor (>= 2.0.30506.0)
     SourceLink.Fake (0.4.2)
-    Zlib.Portable (1.10.0)
 GITHUB
   remote: fsharp/FAKE
   specs:
@@ -38,14 +32,12 @@ GITHUB
     Algebra.Boolean/Transforms.fs (6b2099420ef605e3b3f818883db957154afa836a)
   remote: fsharp/FSharp.Data
   specs:
-    FULLPROJECT (0d48470359eff76d39068b601ce9818a0aac1960)
-      FAKE (>= 0)
-      FSharp.Charting (>= 0)
-      FSharp.Formatting (>= 0)
-      FsCheck (0.9.2.0)
-      NUnit (>= 0)
-      NUnit.Runners (>= 0)
-      Nancy.Hosting.Self (>= 0)
-      Nuget.CommandLine (>= 0)
-      SourceLink.Fake (>= 0)
-      Zlib.Portable (>= 0)
+    src/CommonRuntime/IO.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/CommonRuntime/TextConversions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/CommonRuntime/TextRuntime.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Json/JsonConversions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Json/JsonExtensions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Json/JsonRuntime.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Json/JsonValue.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Net/Http.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/Net/UriUtils.fs (0d48470359eff76d39068b601ce9818a0aac1960)

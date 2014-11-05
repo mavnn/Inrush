@@ -1,5 +1,11 @@
+File:ProvidedTypes.fsi
+File:ProvidedTypes.fs
 File:Transforms.fs
+File:UriUtils.fs
+File:Http.fs
 File:IO.fs
+File:TextConversions.fs
+File:TextRuntime.fs
 File:JsonValue.fs
 File:JsonConversions.fs
 File:JsonExtensions.fs

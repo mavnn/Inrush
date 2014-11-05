@@ -9,7 +9,13 @@ nuget SourceLink.Fake
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx
 github mavnn/Algebra.Boolean Algebra.Boolean/Transforms.fs
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
+github fsharp/FSharp.Data src/Net/UriUtils.fs
+github fsharp/FSharp.Data src/Net/Http.fs
 github fsharp/FSharp.Data src/CommonRuntime/IO.fs
+github fsharp/FSharp.Data src/CommonRuntime/TextConversions.fs
+github fsharp/FSharp.Data src/CommonRuntime/TextRuntime.fs
 github fsharp/FSharp.Data src/Json/JsonValue.fs
 github fsharp/FSharp.Data src/Json/JsonConversions.fs
 github fsharp/FSharp.Data src/Json/JsonExtensions.fs

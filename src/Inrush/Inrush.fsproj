@@ -62,8 +62,39 @@
       <Paket>True</Paket>
       <Link>paket-files/Transforms.fs</Link>
     </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/UriUtils.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Http.fs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextRuntime.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/TextRuntime.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextConversions.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/TextConversions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
+      <Link>paket-files\IO.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonValue.fs">
+      <Link>paket-files\JsonValue.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonConversions.fs">
+      <Link>paket-files\JsonConversions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
+      <Link>paket-files\JsonExtensions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonRuntime.fs">
+      <Link>paket-files\JsonRuntime.fs</Link>
+    </Compile>
     <Compile Include="Meta.fs" />
     <Compile Include="Influx.fs" />
     <None Include="paket.references" />
