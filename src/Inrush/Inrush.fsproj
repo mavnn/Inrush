@@ -62,8 +62,11 @@
       <Paket>True</Paket>
       <Link>paket-files/Transforms.fs</Link>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Meta.fs" />
     <Compile Include="Influx.fs" />
+    <None Include="paket.references" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <ItemGroup>
