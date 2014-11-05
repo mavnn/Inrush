@@ -16,6 +16,7 @@ github fsharp/FSharp.Data src/Net/Http.fs
 github fsharp/FSharp.Data src/CommonRuntime/IO.fs
 github fsharp/FSharp.Data src/CommonRuntime/TextConversions.fs
 github fsharp/FSharp.Data src/CommonRuntime/TextRuntime.fs
+github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
 github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
 github fsharp/FSharp.Data src/CommonRuntime/StructuralTypes.fs
 github fsharp/FSharp.Data src/Json/JsonValue.fs

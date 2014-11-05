@@ -37,6 +37,8 @@ GITHUB
   remote: fsharp/FSharp.Data
   specs:
     src/CommonRuntime/IO.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/CommonRuntime/NameUtils.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/CommonRuntime/Pluralizer.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/CommonRuntime/StructuralTypes.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/CommonRuntime/TextConversions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/CommonRuntime/TextRuntime.fs (0d48470359eff76d39068b601ce9818a0aac1960)

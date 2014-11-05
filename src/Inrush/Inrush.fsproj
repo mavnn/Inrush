@@ -62,6 +62,8 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fsi</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
@@ -78,20 +80,30 @@
       <Paket>True</Paket>
       <Link>paket-files/Http.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
-      <Link>paket-files\IO.fs</Link>
-    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\StructuralTypes.fs">
       <Paket>True</Paket>
       <Link>paket-files/StructuralTypes.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\NameUtils.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/NameUtils.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Pluralizer.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextRuntime.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/TextRuntime.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextConversions.fs">
       <Paket>True</Paket>
       <Link>paket-files/TextConversions.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextRuntime.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/TextRuntime.fs</Link>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
+      <Link>paket-files\IO.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonValue.fs">
       <Link>paket-files\JsonValue.fs</Link>
