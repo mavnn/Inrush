@@ -30,9 +30,14 @@ GITHUB
   remote: mavnn/Algebra.Boolean
   specs:
     Algebra.Boolean/Transforms.fs (6b2099420ef605e3b3f818883db957154afa836a)
+  remote: fsprojects/FSharp.TypeProviders.StarterPack
+  specs:
+    src/ProvidedTypes.fs (97b242b82bc55acbdd08cd1bf903a9d908dbdd7a)
+    src/ProvidedTypes.fsi (97b242b82bc55acbdd08cd1bf903a9d908dbdd7a)
   remote: fsharp/FSharp.Data
   specs:
     src/CommonRuntime/IO.fs (0d48470359eff76d39068b601ce9818a0aac1960)
+    src/CommonRuntime/StructuralTypes.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/CommonRuntime/TextConversions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/CommonRuntime/TextRuntime.fs (0d48470359eff76d39068b601ce9818a0aac1960)
     src/Json/JsonConversions.fs (0d48470359eff76d39068b601ce9818a0aac1960)
