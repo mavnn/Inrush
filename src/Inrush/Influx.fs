@@ -187,15 +187,20 @@ module AST =
 module Action =
     open Inrush.Meta
     open AST
-    open System
-    open System.Reflection
-    open Microsoft.FSharp.Reflection
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
     open Microsoft.FSharp.Quotations.ExprShape
     open Microsoft.FSharp.Quotations.DerivedPatterns
     open Algebra.Boolean
     open Algebra.Boolean.Simplifiers
+
+    type InfluxConfig =
+        {
+            Server : string
+            Database : string
+            User : string
+            Password : string
+        }
     
     // No op, purely used to flag a quotation as an Influx query
     let select<'a> () =
