@@ -187,12 +187,14 @@ module AST =
 module Action =
     open Inrush.Meta
     open AST
+    open Microsoft.FSharp.Reflection
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
     open Microsoft.FSharp.Quotations.ExprShape
     open Microsoft.FSharp.Quotations.DerivedPatterns
     open Algebra.Boolean
     open Algebra.Boolean.Simplifiers
+    open FSharp.Data
 
     type InfluxConfig =
         {
@@ -281,3 +283,70 @@ module Action =
                 buildAST t p |> Some
            | _ -> None
         |> Option.map show
+
+    let rawCallInflux<'a> config query =
+        let t = typeof<'a>
+        let (!!) (s : string) = System.Web.HttpUtility.UrlEncode s
+        let uri = sprintf "%s/db/%s/series?u=%s&p=%s&q=%s" config.Server config.Database (!!config.User) (!!config.Password) (!!query)
+        let props =
+            t.GetProperties()
+        async {
+            let! jv = JsonValue.AsyncLoad uri
+            let series = jv.AsArray()
+            if Array.length series <> 1 then failwith "We don't support multiple series queries yet."
+            let columns =
+                series.[0].GetProperty("columns").AsArray()
+                |> Array.mapi (fun i x -> i, x.AsString())
+                |> Map.ofArray
+            let points =
+                series.[0].GetProperty("points").AsArray()
+            let getValue (x : JsonValue) t' =
+                match t' with
+                | t' when t' = typeof<string> -> x.AsString() |> box
+                | t' when t' = typeof<int> -> x.AsFloat() |> int |> box
+                | t' when t' = typeof<float> -> x.AsFloat() |> box
+                | t' when t' = typeof<bool> -> x.AsBoolean() |> box
+                | _ -> failwith "Sorry, can't deal with that yet"
+            let processPointsRecord (ps : JsonValue) =
+                let values =
+                    ps.AsArray()
+                    |> Array.mapi (fun i x ->
+                                        let name = columns.[i]
+                                        let index = props |> Seq.tryFindIndex (fun p -> p.Name = name)
+                                        match index with
+                                        | Some index' ->
+                                            let t' = (props |> Seq.find (fun p -> p.Name = name)).PropertyType
+                                            let value = getValue x t'
+                                            Some (index', value)
+                                        | None ->
+                                            if name <> "time" && name <> "sequence_number" then failwith "Column name not found in properties"
+                                            None)
+                    |> Array.choose id
+                    |> Array.sortBy fst
+                    |> Array.map snd
+                FSharpValue.MakeRecord(t, values) :?> 'a
+            let processPointsMutable (ps : JsonValue) =
+                let ctor = t.GetConstructor(System.Type.EmptyTypes)
+                let o = ctor.Invoke(null)
+                let values =
+                    ps.AsArray()
+                    |> Array.mapi (fun i x ->
+                                        let name = columns.[i]
+                                        name, x)
+                    |> Map.ofArray
+                props
+                |> Seq.iter (fun p ->
+                                let set = p.GetSetMethod()
+                                set.Invoke(o, [|getValue values.[p.Name] p.PropertyType|]) |> ignore)
+                o :?> 'a
+            return
+                points
+                |> Seq.map (if FSharpType.IsRecord t then processPointsRecord else processPointsMutable)
+        }
+
+    let get<'a> config quote =
+        match create quote with
+        | Some query ->
+            Some (rawCallInflux<'a> config query)
+        | None ->
+            None
