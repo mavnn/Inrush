@@ -114,7 +114,9 @@
       <Link>paket-files\JsonRuntime.fs</Link>
     </Compile>
     <Compile Include="Meta.fs" />
-    <Compile Include="Influx.fs" />
+    <Compile Include="Influx.AST.fs" />
+    <Compile Include="Influx.Action.fs" />
+    <Compile Include="InfluxProvider.fs" />
     <None Include="paket.references" />
     <None Include="Script.fsx" />
   </ItemGroup>
