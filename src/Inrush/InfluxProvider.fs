@@ -2,6 +2,7 @@
 
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.FSharp.Quotations
 open System.Reflection
 open FSharp.Data
 open Inrush.Influx.Action
@@ -21,7 +22,7 @@ type InfluxProvider (cfg : TypeProviderConfig) as this =
     let assemblyPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
     let tempAssembly = ProvidedAssembly assemblyPath
 
-    let provider = ProvidedTypeDefinition(asm, ns, "Database", None)
+    let provider = ProvidedTypeDefinition(asm, ns, "Database", None, IsErased = false, SuppressRelocation = false)
 
     let parameters =
         [
@@ -44,7 +45,7 @@ type InfluxProvider (cfg : TypeProviderConfig) as this =
             let config = { Server = server; Database = db; User = u; Password = p }
             let query = "select * from /.*/ limit 1"
 
-            let dbProvider = ProvidedTypeDefinition(asm, ns, typeName, None)
+            let dbProvider = ProvidedTypeDefinition(asm, ns, typeName, None, IsErased = false, SuppressRelocation = false)
             let (!!) (s : string) = System.Web.HttpUtility.UrlEncode s
             let uri = sprintf "%s/db/%s/series?u=%s&p=%s&q=%s" config.Server config.Database (!!config.User) (!!config.Password) (!!query)
 
@@ -55,36 +56,28 @@ type InfluxProvider (cfg : TypeProviderConfig) as this =
             let seriesTypes =
                 series
                 |> Seq.map (fun (name, columns) ->
-                    let seriesType = ProvidedTypeDefinition(name, Some typeof<InfluxSeriesDefinition>)
-                    let c = ProvidedConstructor([], InvokeCode =
-                                fun _ -> 
-                                         let size = Array.length columns
-                                         <@@ 
-                                            InfluxSeriesDefinition.Create name columns (Array.zeroCreate size)
-                                         @@>)
+                    let seriesType = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false, SuppressRelocation = false)
+                    let c = ProvidedConstructor([], InvokeCode = fun _ -> <@@ obj() @@>)
                     seriesType.AddMember c
                     columns
                     |> Seq.iteri (fun i c ->
-                                    let p = 
-                                        ProvidedProperty(
-                                            c,
-                                            typeof<string>,
-                                            GetterCode = (fun args -> <@@
-                                                                        ((%%args.[0]:obj) :?> InfluxSeriesDefinition).Values().[i]
-                                                                     @@>),
-                                            SetterCode = (fun args -> <@@
-                                                                        let state = ((%%args.[0]:obj) :?> InfluxSeriesDefinition).Values()
-                                                                        state.[i] <- (%%args.[1]:string)
-                                                                      @@>))
+                                    let f = ProvidedField("_" + c, typeof<string>)
+                                    f.SetFieldAttributes(FieldAttributes.Private)
+                                    seriesType.AddMember f
+                                    let p = ProvidedProperty(c, typeof<string>)
+                                    p.GetterCode <- fun [me] -> Expr.FieldGet(me, f)
+                                    p.SetterCode <- fun [me;v] -> Expr.FieldSet(me, f, v)
                                     seriesType.AddMember p)
                     seriesType)
+                |> List.ofSeq
 
-            // tempAssembly.AddTypes <| dbProvider::List.ofSeq seriesTypes
-            dbProvider.AddMembers (seriesTypes |> List.ofSeq)
+            dbProvider.AddMembers seriesTypes
+            tempAssembly.AddTypes [dbProvider]
             dbProvider
         )
     do
-        // tempAssembly.AddTypes [provider]
+        this.RegisterRuntimeAssemblyLocationAsProbingFolder(cfg)
+        tempAssembly.AddTypes [provider]
         this.AddNamespace(ns, [provider])
 
 [<assembly:TypeProviderAssembly>]

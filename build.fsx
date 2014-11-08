@@ -16,10 +16,6 @@ open System.IO
 open SourceLink
 #endif
 
-// --------------------------------------------------------------------------------------
-// START TODO: Provide project-specific details below
-// --------------------------------------------------------------------------------------
-
 // Information about the project are used
 //  - for version and project name in generated AssemblyInfo file
 //  - by the generated NuGet package
@@ -46,6 +42,7 @@ let tags = "fsharp influx"
 
 // File system information 
 let solutionFile  = "Inrush.sln"
+let testSolution = "Inrush.Test.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
@@ -60,10 +57,6 @@ let gitName = "Inrush"
 
 // The url for the raw files hosted
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/mavnn"
-
-// --------------------------------------------------------------------------------------
-// END TODO: The rest of the file includes standard build steps
-// --------------------------------------------------------------------------------------
 
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
@@ -114,6 +107,12 @@ Target "CleanDocs" (fun _ ->
 
 Target "Build" (fun _ ->
     !! solutionFile
+    |> MSBuildRelease "" "Rebuild"
+    |> ignore
+)
+
+Target "BuildTests" (fun _ ->
+    !! testSolution
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 )
@@ -265,6 +264,7 @@ Target "All" DoNothing
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
+  ==> "BuildTests"
   ==> "RunTests"
   =?> ("GenerateReferenceDocs",isLocalBuild && not isMono)
   =?> ("GenerateDocs",isLocalBuild && not isMono)
